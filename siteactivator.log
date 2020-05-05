@@ -1,0 +1,40 @@
+2020-05-03 21:48:57.143  INFO 12548 --- [main] c.a.p.s.SiteActivatorStarterApplication  : Starting SiteActivatorStarterApplication on DESKTOP-20QOC0L with PID 12548 (E:\ANZ\ForSiteActivator\solace-java-spring-boot-master\solace-java-spring-boot-master\solace-java-sample-app\target\classes started by krishan in E:\ANZ\ForSiteActivator\solace-java-spring-boot-master\solace-java-spring-boot-master\solace-java-sample-app)
+2020-05-03 21:48:57.148  INFO 12548 --- [main] c.a.p.s.SiteActivatorStarterApplication  : The following profiles are active: default
+2020-05-03 21:48:59.539  INFO 12548 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8081 (http)
+2020-05-03 21:48:59.553  INFO 12548 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2020-05-03 21:48:59.555  INFO 12548 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.27]
+2020-05-03 21:48:59.729  INFO 12548 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2020-05-03 21:48:59.729  INFO 12548 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 2474 ms
+2020-05-03 21:49:00.159  INFO 12548 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2020-05-03 21:49:00.644  INFO 12548 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8081 (http) with context path ''
+2020-05-03 21:49:00.653  INFO 12548 --- [main] c.a.p.s.SiteActivatorStarterApplication  : Started SiteActivatorStarterApplication in 4.141 seconds (JVM running for 4.657)
+2020-05-03 21:49:00.798  INFO 12548 --- [main] c.s.j.protocol.impl.TcpClientChannel     : Connecting to host 'orig=tcp://localhost:55559, scheme=tcp://, host=localhost, port=55559' (host 1 of 1, smfclient 2, attempt 1 of 1, this_host_attempt: 1 of 2)
+2020-05-03 21:49:00.823  INFO 12548 --- [main] c.s.j.protocol.impl.TcpClientChannel     : Connected to host 'orig=tcp://localhost:55559, scheme=tcp://, host=localhost, port=55559' (smfclient 2)
+2020-05-03 21:49:00.868  INFO 12548 --- [main] s.SiteActivatorStarterApplication$Runner : #################  Session with Solace established successfully. Consumer connection established. Awaiting message... ######################
+2020-05-03 21:58:13.444  INFO 5756 --- [main] c.a.p.s.SiteActivatorStarterApplication  : Starting SiteActivatorStarterApplication on DESKTOP-20QOC0L with PID 5756 (E:\ANZ\ForSiteActivator\solace-java-spring-boot-master\solace-java-spring-boot-master\solace-java-sample-app\target\classes started by krishan in E:\ANZ\ForSiteActivator\solace-java-spring-boot-master\solace-java-spring-boot-master\solace-java-sample-app)
+2020-05-03 21:58:13.449  INFO 5756 --- [main] c.a.p.s.SiteActivatorStarterApplication  : The following profiles are active: qa
+2020-05-03 21:58:15.605  INFO 5756 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8081 (http)
+2020-05-03 21:58:15.617  INFO 5756 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2020-05-03 21:58:15.617  INFO 5756 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.27]
+2020-05-03 21:58:15.783  INFO 5756 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2020-05-03 21:58:15.784  INFO 5756 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 2239 ms
+2020-05-03 21:58:16.159  INFO 5756 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2020-05-03 21:58:16.469  INFO 5756 --- [main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2020-05-03 21:58:16.480  INFO 5756 --- [main] ConditionEvaluationReportLoggingListener : 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2020-05-03 21:58:16.483 ERROR 5756 --- [main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8081 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8081 or configure this application to listen on another port.
+
+2020-05-03 21:58:16.486  INFO 5756 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'applicationTaskExecutor'

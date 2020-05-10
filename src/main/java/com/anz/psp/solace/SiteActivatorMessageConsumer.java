@@ -1,25 +1,5 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
 package com.anz.psp.solace;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.Logger;
@@ -37,13 +17,7 @@ public class SiteActivatorMessageConsumer implements XMLMessageListener  {
 
 	private String applicationMode;
 	
-	private String redundancyStatusCheckResponse;
-	
 	private boolean solaceHealthCheckResponse;
-	
-	private ReplicationRoleResponse replicationRoleResponse;
-
-
 
 	public void setApplicationMode(String applicationMode) {
 		this.applicationMode = applicationMode;
@@ -67,23 +41,12 @@ public class SiteActivatorMessageConsumer implements XMLMessageListener  {
 
 	public void onException(JCSMPException e) {
 
-		logger.info("####### Message consumer caught exception at :::: " , getCurrentTimeStamp() , ", exception details :: ", e);
+		
+		logger.info("####### Message consumer connection with Solace is disrupted, Siteactivator will perform further verfication and actions. ######");
 
+		logger.error("\n######## Exception details are :::: " , e);
+		
 		logger.info("####### Checking the value of current application mode :: " + applicationMode);
-
-		/*if(applicationMode!= null && applicationMode.equalsIgnoreCase("normal")){
-			logger.info("####### Application is running in NORMAL mode, site activator to check for redundancy status before enabling cross site VPN");	
-			redundancyStatusCheckResponse = sempRestCallApplication.getRedundancyStatus();
-			if(redundancyStatusCheckResponse != null && redundancyStatusCheckResponse.equalsIgnoreCase("Down")) {
-				logger.info("######## Redundancy status is Down, changing the replication role of VPN on cross site to UP ########");
-
-				sempRestCallApplication.enableVPN();
-
-				logger.info("######## Cross site VPN enabled ########");
-			}
-		}else {
-			logger.info("####### Application is running in Maintenance mode, Site activator will not take any action ########");
-		}*/
 
 		if (applicationMode != null && applicationMode.equalsIgnoreCase("normal")) {
 			logger.info(
@@ -91,8 +54,7 @@ public class SiteActivatorMessageConsumer implements XMLMessageListener  {
 			try {
 				solaceHealthCheckResponse = sempRestCallApplication.solaceHealthCheck();
 			} catch (Exception e1) {
-				logger.error("####### Exception in Solace health check ###### ");
-				e1.printStackTrace();
+				logger.error("####### Exception in Solace health check ###### ",e1);
 			}
 			if (!solaceHealthCheckResponse) {
 				logger.info("######## Health Check Status is DOWN for both the nodes, changing the replication role of VPN on cross site to Acive ########");
@@ -101,7 +63,7 @@ public class SiteActivatorMessageConsumer implements XMLMessageListener  {
 				logger.info("######## Solace health check indicates that one of the two nodes is UP, hence site activator is not doing any update on Solace ######## ");
 			}
 		}else {
-			logger.info("####### Application is running in Maintenance mode, Site activator will not take any action ########");
+			logger.error("####### Application is running in Maintenance mode, Site activator will not take any action ########");
 		}
 
 
@@ -112,9 +74,7 @@ public class SiteActivatorMessageConsumer implements XMLMessageListener  {
 		return latch;
 	}
 
-	public String getCurrentTimeStamp() {
-		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
-	}
+	
 }
 
 

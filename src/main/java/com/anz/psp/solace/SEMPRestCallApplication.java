@@ -25,15 +25,7 @@ public class SEMPRestCallApplication {
 
 	HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 	
-	@Value("${semp.redundancy.status.call.payload}")
-	private String redundancyStatusPayload;
-	
-	@Value("${redundancy.status.start}")
-	private String REDUNDANCY_STATUS;
-	
-	@Value("${redundancy.status.closing}")
-	private String REDUNDANCY_STATUS_CLOSING;
-	
+		
 	@Value("${solace.cli.username}")
 	private String cliUserName;
 	
@@ -49,8 +41,11 @@ public class SEMPRestCallApplication {
 	@Value("${semp.replication.role.standby.json.payload}")
 	private String replicationJsonPayloadStandby;
 	
-	@Value("${semp.replication.role.url}")
-	private String replicationRoleURL;
+	@Value("${solace.env.semp.replication.role.url}")
+	private String replicationRoleChangeURL;
+	
+	@Value("${solace.env.semp.replication.role.change.candidate.vpn.list}")
+	private String replicationRoleChangeCandidateVPNsList;
 	
 	@Value("${semp.msgvpn.enable.json.payload}")
 	private String vpnEnableJsonPayload;
@@ -60,8 +55,7 @@ public class SEMPRestCallApplication {
 	
 	@Value("${solace.healthcheck.url.node2}")
 	private String solaceHealthCheckURLNode2;
-	
-	
+
 	public boolean solaceHealthCheck() {
 		requestFactory.setConnectTimeout(1000);
 		requestFactory.setReadTimeout(1000);
@@ -78,7 +72,7 @@ public class SEMPRestCallApplication {
 				}	
 			}
 		} catch (Exception e) {
-			log.error("####### Exception in calling Solace Health Check URL ########" + e.getMessage());
+			log.error("####### Exception in calling Solace Health Check URL :: "  + solaceHealthCheckURLNode1+ ", the error message is :::: ", e);
 			//e.printStackTrace();
 			node1CheckResponse = false;
 		}
@@ -92,117 +86,21 @@ public class SEMPRestCallApplication {
 				}	
 			}
 		} catch (Exception e) {
-			log.error("####### Exception in calling Solace Health Check URL ########" + e.getMessage());
+			log.error("####### Exception in calling Solace Health Check URL :: "  + solaceHealthCheckURLNode2+ ", the error message is :::: " , e);
 			//e.printStackTrace();
 			node2CheckResponse = false;
 		}
 
-		if(node1CheckResponse || node2CheckResponse) {
-			return true;
-		}else {
-			return false;
-		}
+		return (node1CheckResponse || node2CheckResponse);
+		
 	}
 	
-	public void changeDMREnabled() {
-
-		try {
-			requestFactory.setConnectTimeout(1000);
-			requestFactory.setReadTimeout(1000);
-
-			restTemplate.setRequestFactory(requestFactory);
-
-			String jsonInput2 = "{\"dmrEnabled\":false}";
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.setBasicAuth("admin", "admin");
-
-			HttpEntity<String> entity = new HttpEntity<String>(jsonInput2, headers);
-			String response = restTemplate.patchForObject("http://localhost:8080/SEMP/v2/config/msgVpns/testVPN",
-					entity, java.lang.String.class);
-			System.out.println("###### Update DMREnabled status done !!");
-		} catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
-		}
-
-	}
-
-	public String getRedundancyStatus() {
-		String redundancyStatus = null;
-		try {
-			/* RestTemplate restTemplate = new RestTemplate(); */
-			log.info("Payload for redundancy status check ::: " + redundancyStatusPayload);
-			requestFactory.setConnectTimeout(1000);
-			requestFactory.setReadTimeout(1000);
-			restTemplate.setRequestFactory(requestFactory);
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_XML);
-			headers.setBasicAuth(cliUserName,cliPassword);
-
-			HttpEntity<String> entity = new HttpEntity<String>(redundancyStatusPayload, headers);
-
-			ResponseEntity<String> response = restTemplate.postForEntity(sempURL, entity,
-					java.lang.String.class);
-			if(response != null) {
-				String responseBody = response.getBody().trim();
-				log.info("####### Redundancy status check response :::: \n" + responseBody);
-				redundancyStatus = responseBody.substring(
-						responseBody.indexOf(REDUNDANCY_STATUS) + REDUNDANCY_STATUS.length(),
-						responseBody.indexOf(REDUNDANCY_STATUS_CLOSING));
-				
-			}
-			
-		} catch (Exception e) {
-			log.error("####### Exception in redundancy status check #####");
-			e.printStackTrace();
-			return redundancyStatus;
-		}
-		return redundancyStatus;
-
-	}
 	
-	public boolean changeReplicationRole(boolean active) {
-			try {
-			
-				HttpEntity<String> entity;
-				
-				requestFactory.setConnectTimeout(1000);
-				requestFactory.setReadTimeout(1000);
-
-				restTemplate.setRequestFactory(requestFactory);
-				HttpHeaders headers = new HttpHeaders();
-				headers.setContentType(MediaType.APPLICATION_JSON);
-				headers.setBasicAuth(cliUserName, cliPassword);
-				if(active) {
-					 entity = new HttpEntity<String>(replicationJsonPayloadActive, headers);
-				}else {
-					entity = new HttpEntity<String>(replicationJsonPayloadStandby, headers);
-				}
-				
-				ResponseEntity<String> response = restTemplate.exchange(replicationRoleURL, HttpMethod.PATCH, entity, java.lang.String.class);
-				if(response.getStatusCode().equals(HttpStatus.OK)) {
-					log.info("####### Replication role change was successful with response code ::: " + response.getStatusCodeValue());
-					log.info("######## Replication role change response body :::: \n" + response.getBody());
-					return true;
-				}else {
-					return false;
-				}
-			}catch (ResourceAccessException ex) {
-				log.error("###### Error while changing the Replication role :::: " + ex.getMessage());
-				ex.printStackTrace();
-				return false;
-			}catch (Exception e) {
-				log.error("###### Error while changing the Replication role :::: " + e.getMessage());
-				e.printStackTrace();
-				return false;
-			}
-	}
-
-	
-	public void enableVPN() {
+	public void changeReplicationRole(boolean active) {
 		try {
-			
+
+			HttpEntity<String> entity;
+
 			requestFactory.setConnectTimeout(1000);
 			requestFactory.setReadTimeout(1000);
 
@@ -210,14 +108,52 @@ public class SEMPRestCallApplication {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			headers.setBasicAuth(cliUserName, cliPassword);
+			if (active) {
+				entity = new HttpEntity<String>(replicationJsonPayloadActive, headers);
+			} else {
+				entity = new HttpEntity<String>(replicationJsonPayloadStandby, headers);
+			}
 
-			HttpEntity<String> entity = new HttpEntity<String>(vpnEnableJsonPayload, headers);
-			String response = restTemplate.patchForObject(replicationRoleURL, entity, java.lang.String.class);
-			log.info("####### Msg VPN Enabled Status Response ::: " + response);
+			if (replicationRoleChangeCandidateVPNsList != null) {
+				String[] vpnsList = replicationRoleChangeCandidateVPNsList.split(",");
+				String fullReplicationRoleChangeURL = null;
+				for (String vpnName : vpnsList) {
+					try {
+						fullReplicationRoleChangeURL = replicationRoleChangeURL.concat(vpnName);
+						ResponseEntity<String> response = restTemplate.exchange(fullReplicationRoleChangeURL,
+								HttpMethod.PATCH, entity, java.lang.String.class);
+						if (response.getStatusCode().equals(HttpStatus.OK)) {
+							log.info("####### Replication role change was successful for following URL :: "
+									+ fullReplicationRoleChangeURL + "\t, the response code ::: "
+									+ response.getStatusCodeValue());
+							log.info("\n ######## Replication role change response body :::: \n" + response.getBody());
+						} else {
+							log.error("####### Replication role change was UNSUCCESSFUL for following URL :: "
+									+ fullReplicationRoleChangeURL + "\t, the response code ::: "
+									+ response.getStatusCodeValue());
+							log.error("\n ######## Replication role change response body :::: \n" + response.getBody());
+						}
+						fullReplicationRoleChangeURL = null;
+					} catch (ResourceAccessException ex) {
+						log.error("###### Error while changing the Replication role, URL  :::: "+ fullReplicationRoleChangeURL);
+						log.error("###### Error details are :::: " ,ex);
+						//ex.printStackTrace(System.err);
+					} catch (Exception e) {
+						log.error("###### Error while changing the Replication role, URL  :::: "+ fullReplicationRoleChangeURL);
+						log.error("###### Error details are :::: " ,e);
+						//e.printStackTrace(System.err);
+					}
+				}
+
+			}
 		} catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
+			log.error("###### Error while changing the Replication role, error details are  :::: ", e);
+			//e.printStackTrace(System.err);
 		}
-}
+	}
+
+	
+
+	
 
 }
